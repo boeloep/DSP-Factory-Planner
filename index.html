@@ -827,7 +827,9 @@ if (typeof window !== 'undefined') window.DSPSolver = { solve };
     var s = h ? (decodeState(h) || defaultState()) : defaultState();
     // Drop any target that references a now-ineligible item (e.g. an old hash
     // pointing at a harvested raw) so a stale link can't crash the planner.
-    s.targets = (s.targets || []).filter(function(t){ return TARGET_ELIGIBLE_IDS.has(t.itemId); });
+    s.targets = (Array.isArray(s.targets) ? s.targets : [])
+      .filter(function(t){ return t && TARGET_ELIGIBLE_IDS.has(t.itemId); })
+      .map(function(t){ return { itemId: t.itemId, rate: Number(t.rate) || 0 }; });
     return s;
   }
   function saveHash(){
@@ -1043,7 +1045,7 @@ if (typeof window !== 'undefined') window.DSPSolver = { solve };
       var name = item ? item.name : t.itemId;
       return '<div class="target-chip">' + iconHtml(t.itemId,26) +
         '<span class="target-name">'+esc(name)+'</span>' +
-        '<input class="rate-input" type="number" min="0" step="any" value="'+t.rate+'" data-item="'+esc(t.itemId)+'" aria-label="'+esc(name)+' rate, items per minute">' +
+        '<input class="rate-input" type="number" min="0" step="any" value="'+esc(t.rate)+'" data-item="'+esc(t.itemId)+'" aria-label="'+esc(name)+' rate, items per minute">' +
         '<span class="unit">/min</span>' +
         '<button class="target-remove" data-item="'+esc(t.itemId)+'" title="Remove target" aria-label="Remove '+esc(name)+' target">&times;</button>' +
         '</div>';
